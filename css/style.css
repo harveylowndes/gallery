@@ -1,0 +1,49 @@
+.gallery .container {
+  max-width: 600px;
+  background-color: black;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+
+.container .image {
+  width: 100%;
+}
+
+.container .image:first-child {
+  display: inline-block;
+}
+
+.container .image:not(:first-child) {
+  display: none;
+}
+
+.container .image img {
+  width: 100%;
+  height: auto;
+}
+
+.container .thumbnails {
+  padding: 15px 0 15px 0;
+  width: 100%;
+  display: block; 
+  overflow-x: scroll; 
+  white-space: nowrap;
+}
+
+.container .thumbnails div {
+  display: table-cell;
+  height: 100px;
+  width: auto;
+}
+
+.container .thumbnails img {
+  width: inherit; 
+  height: inherit;
+  -webkit-filter: opacity(0.75);
+}
+
+.container .thumbnails div.active img {
+  -webkit-filter: opacity(0.5);
+}
+
