@@ -1,142 +1,59 @@
-/*
-	JS Image Gallery 
-	Harvey Lowndes
- */
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Image Gallery</title>
+	<link rel="stylesheet" href="css/style.css">
+	<!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+	<![endif]-->
+</head>
 
-$(document).ready(function() {
+<body>
 
-    var images = $('.gallery .container .image'); //Get all image elements.
-    var thumbnails = $('.gallery .container .thumbnails'); //Get the thumnail element.
+	<span id="info"></span>
+	<span id="info1"></span>
+	<section class="gallery">
 
-    var currentImage = 0; //The current image index.
+		<div class="container">
 
-    var scrollWidth = 0; //The width of the scroll. 0 = beginning.
-    
-    var cycleTime = 5000; //Cycle time m/s.
-    var _intervalId; //Cycle interval.
+			<div class="image">
+				<img src="https://placeimg.com/640/480/people" alt="">
+			</div>
 
-    /*
-    	Create thumbnails from image elements.
-     */
-    images.each(function(index) {
-        var image = $(this).find('img').get(0); //Get the img element.
-        var src = $(image).attr('src'); //Get the src attribute.
-        $(thumbnails).append('<div><img src="' + src + '" /></div>'); //Add div and img element to div.
-    });
+			<div class="image">
+				<img src="https://placeimg.com/640/480/arch" alt="">
+			</div>
 
-    /*
-    	Set active thumbnail.
-    */
-    jQuery.fn.extend({
-        setActive: function() {
-            $(this).addClass('active'); //Add class active to this div.
-        }
-    });
+			<div class="image">
+				<img src="https://placeimg.com/640/480/animals" alt="">
+			</div>
 
-    /*
-    	Set inactive thumnail.
-     */
-    jQuery.fn.extend({
-        setInactive: function() {
-            $(this).removeClass('active'); //Remove active class from this div.
-        }
-    });
+			<div class="image">
+				<img src="https://placeimg.com/640/480/nature" alt="">
+			</div>
 
-    //Set first thumbnail to active.
-    var currentThumb = $(thumbnails).find('div').get(currentImage);
-    $(currentThumb).setActive();
+			<div class="image">
+				<img src="https://placeimg.com/640/480/tech" alt="">
+			</div>
 
-    /*
-    	Clears current image displayed.
-    */
-    function clearCurrentImage() {
-        //Hide current image.
-        var current = $(images).get(currentImage);
-        $(current).fadeOut().css('display', 'none'); //Hide with fade out.
-        //Set thumbnail of current image inactive.
-        var currentThumb = $(thumbnails).find('div').get(currentImage);
-        $(currentThumb).setInactive();
-    }
+			<div class="image">
+				<img src="https://placeimg.com/640/480/grayscale" alt="">
+			</div>
 
-    /*
-    	Display new image.
-     */
-    function displayImage(index) {
-        //Show image
-        var image = $(images).get(index);
-        $(image).fadeIn().css('display', 'inline-block'); //Show with fade in.
-        //Set thumbnail of image to active.
-        var imageThumb = $(thumbnails).find('div').get(index);
-        $(imageThumb).setActive();
-    }
+			<div class="image">
+				<img src="https://placeimg.com/640/480/sepia" alt="">
+			</div>
 
-    /*
-    	Calculate scroll width. Adds all previous image widths.
-     */
-    function getScrollWidth() {
-        var width = 0;
-        for (var i = 0; i < currentImage; i++) {
-            var current = $(thumbnails).find('div').get(i);
-            var image = $(current).find('img').get(0);
-            width = width + $(image).width();
-        }
-        return width;
-    }
+			<div class="thumbnails"></div>
 
-    /*
-    	Scroll to correct thumbnail.
-     */
-    function scrollThumbnails() {
-        $(thumbnails).animate({
-            scrollLeft: getScrollWidth()
-        }, 1000);
-    }
+		</div>
+	</section>
 
-    /*
-    	Cycle function. Variable for interval manager.
-     */
-    var imageCycle = function() {
-        clearCurrentImage(); //Clear current displayed image
-        nextImage = currentImage + 1; //Next image index.
-        currentImage++; //Increment current image by 1. Do this before reset check.
-        //Reset if last image.
-        if (nextImage > images.length - 1) {
-            nextImage = 0;
-            currentImage = 0;
-        }
-        displayImage(nextImage); //Display new image.
-        scrollThumbnails(); //Scroll to correct thumb.
-    };
+	<!-- JQuery CDN -->
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 
-    /*
-    	Interval manager for cycle.
-     */
-    function intervalManager(flag, animate, time) {
-        if (flag)
-            _intervalId = setInterval(animate, time);
-        else
-            clearInterval(_intervalId);
-    }
-
-    intervalManager(true, imageCycle, cycleTime); //Start interval.
-
-    /*
-    	Restarts the interval.
-     */
-    function resetInterval() {
-        intervalManager(false); //Clear the interval.
-        intervalManager(true, imageCycle, cycleTime); //Start the interval.
-    }
-
-    $(thumbnails).find("div").click(function() {
-        var divIndex = $(this).index();
-        if(divIndex != currentImage) {
-            clearCurrentImage(); //Clear current image from browser.
-            currentImage = divIndex; //Set current image to clicked thumbnail index.
-            displayImage(currentImage); //Display new current image.
-            resetInterval(); //Restart the interval.
-            scrollThumbnails(); //Scroll to correct thumb.
-        }
-    });
-
-});
+	<!--Gallery Javascript -->
+	<script src="js/gallery.js"></script>
+</body>
+</html>
