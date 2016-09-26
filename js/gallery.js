@@ -7,8 +7,11 @@ $(document).ready(function() {
 
     var images = $('.gallery .container .image'); //Get all image elements.
     var thumbnails = $('.gallery .container .thumbnails'); //Get the thumnail element.
+
     var currentImage = 0; //The current image index.
+
     var scrollWidth = 0; //The width of the scroll. 0 = beginning.
+    
     var cycleTime = 5000; //Cycle time m/s.
     var _intervalId; //Cycle interval.
 
@@ -126,11 +129,14 @@ $(document).ready(function() {
     }
 
     $(thumbnails).find("div").click(function() {
-        clearCurrentImage(); //Clear current image from browser.
-        currentImage = $(this).index(); //Set current image to clicked thumbnail index.
-        displayImage(currentImage); //Display new current image.
-        resetInterval(); //Restart the interval.
-        scrollThumbnails(); //Scroll to correct thumb.
+        var divIndex = $(this).index();
+        if(divIndex != currentImage) {
+            clearCurrentImage(); //Clear current image from browser.
+            currentImage = divIndex; //Set current image to clicked thumbnail index.
+            displayImage(currentImage); //Display new current image.
+            resetInterval(); //Restart the interval.
+            scrollThumbnails(); //Scroll to correct thumb.
+        }
     });
 
 });
