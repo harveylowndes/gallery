@@ -3,10 +3,46 @@
   background-color: black;
   margin: 0 auto;
   text-align: center;
+}
+
+.container .frame {
   position: relative;
 }
 
-.container .image {
+.container .frame .control {
+  position: absolute;
+  top: 40%;
+  font-family: Futura, "Trebuchet MS", Arial, sans-serif;
+  color: black;
+  font-size: 3em;
+}
+
+.container .frame .control:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  -webkit-transition: background 0.25s linear;
+  -moz-transition: background 0.25s linear;
+  -ms-transition: background 0.25s linear;
+  -o-transition: background 0.25s linear;
+  transition: background 0.25s linear;
+}
+
+.container .frame #previous {
+  left: 5px;
+}
+
+.container .frame #next {
+  right: 5px;
+}
+
+.container .frame #previous::before {
+  content: '<';
+}
+
+.container .frame #next::before {
+  content: '>';
+}
+
+.container .frame .image {
   width: 100%;
 }
 
@@ -40,10 +76,16 @@
 .container .thumbnails img {
   width: inherit; 
   height: inherit;
-  -webkit-filter: opacity(0.75);
+  opacity: 0.8;
+  transition: opacity .25s ease-in-out;
+  -moz-transition: opacity .25s ease-in-out;
+  -webkit-transition: opacity .25s ease-in-out;
 }
 
 .container .thumbnails div.active img {
-  -webkit-filter: opacity(0.5);
+  opacity: 0.4; 
+  transition: opacity .25s ease-in-out;
+  -moz-transition: opacity .25s ease-in-out;
+  -webkit-transition: opacity .25s ease-in-out;
 }
 
