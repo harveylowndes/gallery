@@ -1,142 +1,217 @@
-/*
-	JS Image Gallery 
-	Harvey Lowndes
- */
+    var images = (function() {
+
+        var imageArray = $('.gallery .container .frame .image');
+        var currentImageIndex = 0;
+
+        var getImageArray = function() {
+            return $(imageArray);
+        };
+
+        var setCurrentImageIndex = function(newIndex) {
+            currentImageIndex = newIndex;
+        };
+
+        var getImage = function(index) {
+            return $(getImageArray()).get(index);
+        };
+
+        var getImageSource = function(index) {
+            var image = getImage(index);
+            var img = $(image).find('img').get(0);
+            var src = $(img).attr('src');
+            return src;
+        };
+
+        var getCurrentImageIndex = function() {
+            return currentImageIndex;
+        };
+
+        var clearCurrentImage = function() {
+            var current = getImage(getCurrentImageIndex());
+            $(current).fadeOut().css('display', 'none');
+
+            var currentThumbnail = $(thumbnails.getThumbnailArray()).find('div').get(getCurrentImageIndex());
+            $(currentThumbnail).removeClass('active');
+        };
+
+        /*
+            Display new image.
+        */
+        var displayImage = function(index) {
+            var image = getImage(index);
+            $(image).fadeIn().css('display', 'inline-block');
+
+            var imageThumbnail = $(thumbnails.getThumbnailArray()).find('div').get(index);
+            $(imageThumbnail).addClass('active');
+
+            thumbnails.scrollThumbnails(); //Scroll to correct thumb.
+        };
+
+        /*
+            Display next image.
+         */
+        var displayNextImage = function() {
+            clearCurrentImage();
+            var nextImage = getCurrentImageIndex() + 1;
+            setCurrentImageIndex(getCurrentImageIndex() + 1);
+            if (nextImage > getImageArray().length - 1) {
+                nextImage = 0;
+                setCurrentImageIndex(0);
+            }
+            displayImage(nextImage);
+        };
+
+        /*
+            Display previous image.
+         */
+        var displayPreviousImage= function() {
+            clearCurrentImage();
+            var previousImage = getCurrentImageIndex() - 1;
+            setCurrentImageIndex(getCurrentImageIndex() - 1);
+            if (previousImage < 0) {
+                previousImage = getImageArray().length-1;
+                setCurrentImageIndex(images.getImageArray().length-1);
+            }
+            displayImage(previousImage);
+        };
+
+        // Public API
+        return {
+            getCurrentImageIndex : getCurrentImageIndex,
+            setCurrentImageIndex : setCurrentImageIndex,
+            getImageArray : getImageArray,
+            getImageSource : getImageSource,
+            displayImage : displayImage,
+            displayPreviousImage, displayPreviousImage,
+            displayNextImage : displayNextImage,
+            clearCurrentImage : clearCurrentImage
+        };
+
+    })();
+
+    var thumbnails = (function() {
+        var thumbnailArray = $('.gallery .container .thumbnails');
+
+        var getThumbnailArray = function() {
+            return $(thumbnailArray);
+        };
+
+        var initThumbnails = function() {
+            images.getImageArray().each(function(index) {
+                var src = images.getImageSource(index);
+                $(getThumbnailArray()).append('<div><img src="' + src + '" /></div>');
+            });
+        };
+
+        var getScrollWidth = function() {
+            var width = 0;
+            var currentIndex = images.getCurrentImageIndex();
+            if(currentIndex - 1 != -1) {
+                for (var i = 0; i < images.getCurrentImageIndex() - 1; i++) {
+                    var current = $(getThumbnailArray()).find('div').get(i);
+                    var image = $(current).find('img').get(0);
+                    width = width + $(image).width();
+                }
+                return width;
+            } else {
+                return 0;
+            }
+        };
+
+        /*
+            Scroll to correct thumbnail.
+        */
+        var scrollThumbnails = function() {
+            $(getThumbnailArray()).animate({
+                scrollLeft: getScrollWidth()
+            }, 500);
+        };
+
+        return {
+            getThumbnailArray : getThumbnailArray,
+            initThumbnails : initThumbnails,
+            scrollThumbnails : scrollThumbnails
+        };
+
+    })();
+
+    var interval = (function() {
+
+        var cycleTime = 3000; //In m/s
+        var _intervalId;
+
+        /*
+            Interval manager for cycle.
+        */
+        var intervalManager = function(flag, animate, time) {
+            if (flag)
+                _intervalId = setInterval(animate, time);
+            else
+                clearInterval(_intervalId);
+        };
+
+        /*
+            Starts the interval.
+        */
+        var startInterval = function() {
+            intervalManager(true, images.displayNextImage, 5000);
+        };
+
+        /*
+            Restarts the interval.
+        */
+        var resetInterval = function() {
+            intervalManager(false); //Clear the interval.
+            startInterval(); //Start the interval.
+        };
+
+        return {
+            startInterval : startInterval,
+            resetInterval: resetInterval
+        };
+        
+    })();
+
 
 $(document).ready(function() {
 
-    var images = $('.gallery .container .image'); //Get all image elements.
-    var thumbnails = $('.gallery .container .thumbnails'); //Get the thumnail element.
+    //Controls
+    $('.gallery .container .frame')
+        .append('<span id="previous" class="control"></span><span id="next" class="control"></span>');
 
-    var currentImage = 0; //The current image index.
+    //Show image on load.
+    images.displayImage(images.getCurrentImageIndex());
 
-    var scrollWidth = 0; //The width of the scroll. 0 = beginning.
-    
-    var cycleTime = 5000; //Cycle time m/s.
-    var _intervalId; //Cycle interval.
+    //Generate thumbnails
+    thumbnails.initThumbnails();
 
-    /*
-    	Create thumbnails from image elements.
-     */
-    images.each(function(index) {
-        var image = $(this).find('img').get(0); //Get the img element.
-        var src = $(image).attr('src'); //Get the src attribute.
-        $(thumbnails).append('<div><img src="' + src + '" /></div>'); //Add div and img element to div.
+    //Set first thumb active.
+    var currentThumbnail = $(thumbnails.getThumbnailArray()).find('div').get(images.getCurrentImageIndex());
+    $(currentThumbnail).addClass('active');
+
+    //Start interval.
+    interval.startInterval();
+
+    $("#previous").click(function() { //Previous control click.
+        images.displayPreviousImage();
+        interval.resetInterval();
     });
 
-    /*
-    	Set active thumbnail.
-    */
-    jQuery.fn.extend({
-        setActive: function() {
-            $(this).addClass('active'); //Add class active to this div.
-        }
+    $("#next").click(function() { //Next control click.
+        images.displayNextImage();
+        interval.resetInterval();
     });
 
-    /*
-    	Set inactive thumnail.
-     */
-    jQuery.fn.extend({
-        setInactive: function() {
-            $(this).removeClass('active'); //Remove active class from this div.
-        }
-    });
-
-    //Set first thumbnail to active.
-    var currentThumb = $(thumbnails).find('div').get(currentImage);
-    $(currentThumb).setActive();
-
-    /*
-    	Clears current image displayed.
-    */
-    function clearCurrentImage() {
-        //Hide current image.
-        var current = $(images).get(currentImage);
-        $(current).fadeOut().css('display', 'none'); //Hide with fade out.
-        //Set thumbnail of current image inactive.
-        var currentThumb = $(thumbnails).find('div').get(currentImage);
-        $(currentThumb).setInactive();
-    }
-
-    /*
-    	Display new image.
-     */
-    function displayImage(index) {
-        //Show image
-        var image = $(images).get(index);
-        $(image).fadeIn().css('display', 'inline-block'); //Show with fade in.
-        //Set thumbnail of image to active.
-        var imageThumb = $(thumbnails).find('div').get(index);
-        $(imageThumb).setActive();
-    }
-
-    /*
-    	Calculate scroll width. Adds all previous image widths.
-     */
-    function getScrollWidth() {
-        var width = 0;
-        for (var i = 0; i < currentImage; i++) {
-            var current = $(thumbnails).find('div').get(i);
-            var image = $(current).find('img').get(0);
-            width = width + $(image).width();
-        }
-        return width;
-    }
-
-    /*
-    	Scroll to correct thumbnail.
-     */
-    function scrollThumbnails() {
-        $(thumbnails).animate({
-            scrollLeft: getScrollWidth()
-        }, 1000);
-    }
-
-    /*
-    	Cycle function. Variable for interval manager.
-     */
-    var imageCycle = function() {
-        clearCurrentImage(); //Clear current displayed image
-        nextImage = currentImage + 1; //Next image index.
-        currentImage++; //Increment current image by 1. Do this before reset check.
-        //Reset if last image.
-        if (nextImage > images.length - 1) {
-            nextImage = 0;
-            currentImage = 0;
-        }
-        displayImage(nextImage); //Display new image.
-        scrollThumbnails(); //Scroll to correct thumb.
-    };
-
-    /*
-    	Interval manager for cycle.
-     */
-    function intervalManager(flag, animate, time) {
-        if (flag)
-            _intervalId = setInterval(animate, time);
-        else
-            clearInterval(_intervalId);
-    }
-
-    intervalManager(true, imageCycle, cycleTime); //Start interval.
-
-    /*
-    	Restarts the interval.
-     */
-    function resetInterval() {
-        intervalManager(false); //Clear the interval.
-        intervalManager(true, imageCycle, cycleTime); //Start the interval.
-    }
-
-    $(thumbnails).find("div").click(function() {
+    $(thumbnails.getThumbnailArray()).find("div").click(function() {
         var divIndex = $(this).index();
-        if(divIndex != currentImage) {
-            clearCurrentImage(); //Clear current image from browser.
-            currentImage = divIndex; //Set current image to clicked thumbnail index.
-            displayImage(currentImage); //Display new current image.
-            resetInterval(); //Restart the interval.
-            scrollThumbnails(); //Scroll to correct thumb.
+        if(divIndex != images.getCurrentImageIndex()) { //Disable double clicking of thumb.
+            images.clearCurrentImage(); //Clear current image from browser.
+            images.setCurrentImageIndex(divIndex); // Set current images index.
+            images.displayImage(images.getCurrentImageIndex()); // **Call it!!
+            interval.resetInterval(); //Restart the interval.)
         }
     });
 
 });
+
+
